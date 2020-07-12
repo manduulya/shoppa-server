@@ -6,6 +6,8 @@ const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const app = express();
 const storeRouter = require("./stores/stores-router");
+const shoppingListRouter = require("./shoppingList/shoppingList-router");
+const itemsRouter = require("./items/items-router");
 
 const morganOption = NODE_ENV === "production";
 
@@ -14,6 +16,8 @@ app.use(helmet());
 app.use(cors());
 
 app.use(storeRouter);
+app.use(shoppingListRouter);
+app.use(itemsRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello, world!");

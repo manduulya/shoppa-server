@@ -8,16 +8,25 @@ module.exports = {
   ],
   shoppingList: [
     {
-      id: 1,
-      user_id: 1,
-      name: "myList",
-      store_id: 1,
+      title: "new list",
+      items: {
+        costco: ["apple", "banana", "orange", "eggs", "milk"],
+      },
+      stores: [
+        {
+          id: 1,
+        },
+        {
+          name: "costco",
+        },
+      ],
     },
   ],
   store: [
     {
       id: 1,
       name: "target",
+      shoppingListId: 1,
     },
   ],
   item: [

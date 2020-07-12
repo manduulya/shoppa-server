@@ -32,8 +32,8 @@ storeRouter
     res.json(st);
   })
   .delete((req, res) => {
-    const { deleteStoreId } = req.params;
-    const index = dummyStore.store.findIndex((s) => s.id === deleteStoreId);
+    const { id } = req.params;
+    const index = dummyStore.store.findIndex((s) => s.id === Number(id));
     console.log(index);
 
     if (index === -1) {
