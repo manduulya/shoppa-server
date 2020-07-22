@@ -11,6 +11,9 @@ const storeService = {
         return rows[0];
       });
   },
+  getbySlId(knex, id) {
+    return knex.from("shoppa_stores").select("*").where("shopping_list_id", id);
+  },
   getById(knex, id) {
     return knex.from("shoppa_stores").select("*").where("id", id).first();
   },

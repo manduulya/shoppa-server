@@ -3,11 +3,18 @@ const { item } = require("../dummyStore");
 const itemsRouter = express.Router();
 const bodyParser = express.json();
 const dummyStore = require("../dummyStore");
+const itemService = require("./items-service");
 
 itemsRouter
   .route("/items")
-  .get((req, res) => {
-    res.json(dummyStore.item);
+  .get((req, res, next) => {
+    const knexInstance = req.app.get("db");
+    itemService
+      .getAllItems(knexInstance)
+      .then((items) => {
+        res.json(items);
+      })
+      .catch(next);
   })
   .post(bodyParser, (req, res) => {
     const { id, name } = req.body;
@@ -21,15 +28,30 @@ itemsRouter
     item.push(newItem);
     res.status(201).json(newItem);
   });
+itemsRouter.route("/item/:ls_id").get((req, res, next) => {
+  const knexInstance = req.app.get("db");
+  const { sl_id } = req.params;
+  itemService
+    .getBySlId(knexInstance, sl_id)
+    .then((list) => {
+      res.json(list);
+    })
+    .catch(next);
+});
 itemsRouter
   .route("/items/:id")
-  .get((req, res) => {
+  .get((req, res, next) => {
+    const knexInstance = req.app.get("db");
     const { id } = req.params;
-    const ni = dummyStore.item.find((s) => s.id == id);
     if (!id) {
       return res.status(404).json({ error: { message: `Store not found` } });
     }
-    res.json(ni);
+    itemService
+      .getById(knexInstance, id)
+      .then((item) => {
+        res.json(item);
+      })
+      .catch(next);
   })
   .delete((req, res) => {
     const { id } = req.params;

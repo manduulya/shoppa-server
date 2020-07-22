@@ -1,13 +1,19 @@
 const express = require("express");
 const { store } = require("../dummyStore");
+const storeService = require("./stores-service");
 const storeRouter = express.Router();
 const bodyParser = express.json();
-const dummyStore = require("../dummyStore");
 
 storeRouter
   .route("/stores")
-  .get((req, res) => {
-    res.json(dummyStore.store);
+  .get((req, res, next) => {
+    const knexInstance = req.app.get("db");
+    storeService
+      .getAllStores(knexInstance)
+      .then((stores) => {
+        res.json(stores);
+      })
+      .catch(next);
   })
   .post(bodyParser, (req, res) => {
     const { id, name } = req.body;
@@ -21,15 +27,24 @@ storeRouter
     store.push(newStore);
     res.status(201).json(newStore);
   });
+storeRouter.route("/store/:sl_id").get((req, res, next) => {
+  const knexInstance = req.app.get("db");
+  const { sl_id } = req.params;
+  storeService
+    .getbySlId(knexInstance, sl_id)
+    .then((list) => {
+      res.json(list);
+    })
+    .catch(next);
+});
 storeRouter
   .route("/stores/:id")
   .get((req, res) => {
+    const knexInstance = req.app.get("db");
     const { id } = req.params;
-    const st = dummyStore.store.find((s) => s.id == id);
-    if (!id) {
-      return res.status(404).json({ error: { message: `Store not found` } });
-    }
-    res.json(st);
+    storeService.getById(knexInstance, id).then((store) => {
+      res.json(store);
+    });
   })
   .delete((req, res) => {
     const { id } = req.params;

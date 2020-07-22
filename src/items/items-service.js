@@ -11,8 +11,11 @@ const itemService = {
         return rows[0];
       });
   },
+  getBySlId(knex, id) {
+    return knex.from("shoppa_items").select("*").where("sl_id", id);
+  },
   getById(knex, id) {
-    return knex.from("shoppa_items").select("*").where("id", id).first();
+    return knex.from("shoppa_items").select("*").where("id", id);
   },
   deleteItem(knex, id) {
     return knex("shoppa_items").where({ id }).delete();
