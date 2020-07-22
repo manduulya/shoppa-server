@@ -9,7 +9,7 @@ const storeRouter = require("./stores/stores-router");
 const shoppingListRouter = require("./shoppingList/shoppingList-router");
 const itemsRouter = require("./items/items-router");
 
-const morganOption = NODE_ENV === "production" ? "tiny" : "dev";
+const morganOption = NODE_ENV === "production" ? "tiny" : "common";
 
 app.use(morgan(morganOption));
 app.use(helmet());
