@@ -6,7 +6,7 @@ function dbToExternal(results) {
   const addedStores = new Set();
   const stores = [];
   for (const row of results) {
-    if (!addedStores.has(row.store_id)) {
+    if (row.store_id && !addedStores.has(row.store_id)) {
       stores.push({ id: row.store_id, name: row.store_name });
     }
 
@@ -31,8 +31,6 @@ function dbToExternal(results) {
 const shoppingListService = {
   getAllShoppingList(knex) {
     return knex.select("*").from("shoppa_shoppinglists");
-    // .join("shoppa_stores", "shoppa_shoppinglists.id", "=", "shopping_list_id")
-    // .join("shoppa_items", "shoppa_stores.id", "=", "store_id");
   },
   insertShoppingList(knex, newShoppingList) {
     return knex
@@ -54,12 +52,12 @@ const shoppingListService = {
         "shoppa_items.name as item_name"
       )
       .from("shoppa_shoppinglists")
-      .innerJoin(
+      .leftJoin(
         "shoppa_stores",
         "shoppa_shoppinglists.id",
         "shoppa_stores.shopping_list_id"
       )
-      .innerJoin("shoppa_items", "shoppa_items.store_id", "shoppa_stores.id")
+      .leftJoin("shoppa_items", "shoppa_items.store_id", "shoppa_stores.id")
       .where("shoppa_shoppinglists.id", id)
       .then(dbToExternal);
   },

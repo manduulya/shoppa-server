@@ -2,7 +2,6 @@ const express = require("express");
 const { item } = require("../dummyStore");
 const itemsRouter = express.Router();
 const bodyParser = express.json();
-const dummyStore = require("../dummyStore");
 const itemService = require("./items-service");
 
 itemsRouter
@@ -55,14 +54,8 @@ itemsRouter
   })
   .delete((req, res) => {
     const { id } = req.params;
-    const index = dummyStore.item.findIndex((s) => s.id === id);
-    console.log(index);
-
-    if (index === -1) {
-      return res.status(404).json({ error: { message: "Not Found" } });
-    }
-    dummyStore.item.splice(index, 1);
-    res.status(204).end();
+    const knexInstance = req.app.get("db");
+    itemService.deleteItem(knexInstance, id).then(() => res.status(204).end());
   });
 
 module.exports = itemsRouter;

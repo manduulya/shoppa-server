@@ -20,6 +20,7 @@ const itemService = {
   deleteItem(knex, id) {
     return knex("shoppa_items").where({ id }).delete();
   },
+
   updateItem(knex, id, newItemField) {
     return knex("shoppa_items").where({ id }).update(newItemField);
   },

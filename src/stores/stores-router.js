@@ -15,17 +15,23 @@ storeRouter
       })
       .catch(next);
   })
-  .post(bodyParser, (req, res) => {
-    const { id, name } = req.body;
-    const newStore = { id, name };
+  .post(bodyParser, (req, res, next) => {
+    const knexInstance = req.app.get("db");
+    const { name } = req.body;
+    const newStore = { name };
+    console.log(req.body);
 
     if (!name) {
       res
         .status(400)
         .json({ error: { message: `Missing store name in the request body` } });
     }
-    store.push(newStore);
-    res.status(201).json(newStore);
+    storeService
+      .insertStore(knexInstance, newStore)
+      .then((store) => {
+        res.status(201).json(store);
+      })
+      .catch(next);
   });
 storeRouter.route("/store/:sl_id").get((req, res, next) => {
   const knexInstance = req.app.get("db");
@@ -47,15 +53,11 @@ storeRouter
     });
   })
   .delete((req, res) => {
+    const knexInstance = req.app.get("db");
     const { id } = req.params;
-    const index = dummyStore.store.findIndex((s) => s.id === Number(id));
-    console.log(index);
-
-    if (index === -1) {
-      return res.status(404).json({ error: { message: "Not Found" } });
-    }
-    dummyStore.store.splice(index, 1);
-    res.status(204).end();
+    storeService
+      .deleteStore(knexInstance, id)
+      .then(() => res.status(204).end());
   });
 
 module.exports = storeRouter;
