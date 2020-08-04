@@ -19,7 +19,6 @@ storeRouter
     const knexInstance = req.app.get("db");
     const { name } = req.body;
     const newStore = { name };
-    console.log(req.body);
 
     if (!name) {
       res

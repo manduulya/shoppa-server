@@ -30,13 +30,6 @@ shoppingListRouter
     shoppingListService
       .insertShoppingList(knexInstance, newShoppingList)
       .then((dbSL) => {
-        /* we are creating an array of promises here,
-           the idea is that instead of doing storeService.insertStore(s).then(...) multiple times
-           we are going to end up with an array that is
-           storePromises = [storeService.insertStore(s1), storeService.insertStore(s2), ...]
-           that way we can do Promise.all(storePromises) in the end,
-           the resulting promise is one that resolves to all the results (and will only do the
-           next step after we have all of them */
         const storePromises = [];
         for (const store of stores) {
           const newStore = { name: store.name, shopping_list_id: dbSL.id };
@@ -45,54 +38,36 @@ shoppingListRouter
 
         return Promise.all([dbSL, ...storePromises]);
       })
-      .then(
-        // the result here is an array with the first element being the shopping list and
-        // the rest being the stores inserted
-        ([dbSL, ...dbStores]) => {
-          // same idea as before
-          const itemPromises = [];
+      .then(([dbSL, ...dbStores]) => {
+        const itemPromises = [];
 
-          for (let i = 0; i < stores.length; ++i) {
-            // dbStores[i] is the database-inserted equivalent of our original stores[i]
-            // the data being posted (stores[i]) still has the cuids we created on the frontend,
-            // we need that to know what items in the posted data belong to it, but we need
-            // the database id (dbStores[i]) to insert it correctly
-
-            for (const item of items[stores[i].id]) {
-              const newItem = {
-                name: item.name,
-                //  sl_id: dbSL.id,
-                store_id: dbStores[i].id,
-              };
-              itemPromises.push(itemService.insertItem(knexInstance, newItem));
-            }
+        for (let i = 0; i < stores.length; ++i) {
+          for (const item of items[stores[i].id]) {
+            const newItem = {
+              name: item.name,
+              store_id: dbStores[i].id,
+            };
+            itemPromises.push(itemService.insertItem(knexInstance, newItem));
           }
-
-          return Promise.all([dbSL, dbStores, ...itemPromises]);
         }
-      )
-      .then(
-        // this now resolves only after everything is inserted,
-        // this way we can now respond after all of that is done
-        ([dbSL, dbStores, ...dbItems]) => {
-          // build the response in the format we use on the api/frontend
-          // (based on the final database data)
 
-          const shoppingList = {
-            id: dbSL.id,
-            title: dbSL.title,
-            stores: dbStores,
-            items: {},
-          };
+        return Promise.all([dbSL, dbStores, ...itemPromises]);
+      })
+      .then(([dbSL, dbStores, ...dbItems]) => {
+        const shoppingList = {
+          id: dbSL.id,
+          title: dbSL.title,
+          stores: dbStores,
+          items: {},
+        };
 
-          for (const dbStore of dbStores)
-            shoppingList.items[dbStore.id] = dbItems.filter(
-              (i) => i.store_id === dbStore.id
-            );
+        for (const dbStore of dbStores)
+          shoppingList.items[dbStore.id] = dbItems.filter(
+            (i) => i.store_id === dbStore.id
+          );
 
-          return res.status(201).json({ shoppingList });
-        }
-      );
+        return res.status(201).json({ shoppingList });
+      });
   });
 shoppingListRouter
   .route("/shoppinglist/:id")
