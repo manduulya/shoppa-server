@@ -4,7 +4,6 @@ function makeNewItem() {
       id: 1,
       name: "item name",
       store_id: 1,
-      sl_id: 1,
     },
   ];
 }

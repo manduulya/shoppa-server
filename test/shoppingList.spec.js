@@ -40,12 +40,12 @@ describe("Shopping List router", function () {
     });
   });
   describe(`POST /shoppinglists`, () => {
-    it("responds with 200 and the created folder", () => {
+    it("responds with 201 and the created folder", () => {
       const testShoppingLists = makeShoppingListsArray();
       return supertest(app)
         .post("/shoppinglists")
-        .send(testShoppingLists)
-        .expect(200)
+        .send(testShoppingLists[0])
+        .expect(201)
         .expect((res) => {
           expect(res.body.title).to.eql(testShoppingLists.title);
         });

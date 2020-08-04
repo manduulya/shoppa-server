@@ -33,16 +33,6 @@ storeRouter
       })
       .catch(next);
   });
-storeRouter.route("/store/:sl_id").get((req, res, next) => {
-  const knexInstance = req.app.get("db");
-  const { sl_id } = req.params;
-  storeService
-    .getbySlId(knexInstance, sl_id)
-    .then((list) => {
-      res.json(list);
-    })
-    .catch(next);
-});
 storeRouter
   .route("/stores/:id")
   .get((req, res) => {

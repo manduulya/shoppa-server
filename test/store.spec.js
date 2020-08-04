@@ -3,6 +3,7 @@ const knex = require("knex");
 const app = require("../src/app");
 const supertest = require("supertest");
 const { makeNewStores } = require("./stores.fixtures");
+const { makeShoppingListsArray } = require("./shoppingList.fixtures");
 
 describe("Shopping List router", function () {
   let db;
@@ -27,12 +28,16 @@ describe("Shopping List router", function () {
       });
     });
     context("Given there are stores in the database", () => {
-      const testStore = makeNewStores();
+      const newShoppingList = makeShoppingListsArray();
+      const newStore = makeNewStores();
       beforeEach("Insert store", () => {
-        return db.into("shoppa_stores").insert(testStore);
+        return db
+          .into("shoppa_shoppinglists")
+          .insert(newShoppingList)
+          .then(() => db.into("shoppa_stores").insert(newStore));
       });
       it("responds with 200 and all of the stores", () => {
-        return supertest(app).get("/stores").expect(200, testStore);
+        return supertest(app).get("/stores").expect(200, newStore);
       });
     });
   });

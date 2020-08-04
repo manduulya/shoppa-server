@@ -19,7 +19,7 @@ shoppingListRouter
   })
   .post(bodyParser, (req, res) => {
     const knexInstance = req.app.get("db");
-    const { title, stores, items } = req.body;
+    const { title, stores = [], items = [] } = req.body;
     const newShoppingList = { title };
     if (!title) {
       res.status(400).json({
@@ -61,7 +61,7 @@ shoppingListRouter
             for (const item of items[stores[i].id]) {
               const newItem = {
                 name: item.name,
-                sl_id: dbSL.id,
+                //  sl_id: dbSL.id,
                 store_id: dbStores[i].id,
               };
               itemPromises.push(itemService.insertItem(knexInstance, newItem));
@@ -116,8 +116,9 @@ shoppingListRouter
     res.json(res.shoplist);
   })
   .delete((req, res) => {
+    const knexInstance = req.app.get("db");
     const { id } = req.params;
-    shoppingListService.deleteShoppingList(id).then(() => {
+    shoppingListService.deleteShoppingList(knexInstance, id).then(() => {
       res.status(204).end();
     });
   });

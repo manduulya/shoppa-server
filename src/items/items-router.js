@@ -16,6 +16,7 @@ itemsRouter
       .catch(next);
   })
   .post(bodyParser, (req, res) => {
+    const knexInstance = req.app.get("db");
     const { id, name } = req.body;
     const newItem = { id, name };
 
@@ -24,8 +25,9 @@ itemsRouter
         error: { message: `Missing item name in the request body` },
       });
     }
-    item.push(newItem);
-    res.status(201).json(newItem);
+    itemService.insertItem(knexInstance, newItem).then((item) => {
+      res.status(201).json(newItem);
+    });
   });
 itemsRouter.route("/item/:ls_id").get((req, res, next) => {
   const knexInstance = req.app.get("db");
